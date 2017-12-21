@@ -23,23 +23,25 @@
 ;How many steps are required to carry the data from the square identified in your puzzle input all the way to the access port?
 
 (defn axis-numbers
-  [number]
-  (let [r-b (inc (* 2 number))
+  "返回指定层（中心是0层）的坐标轴上的值，格式为：
+  [right top left bottom]"
+  [tier]
+  (let [r-b (inc (* 2 tier))
         t-sqrt (long (java.lang.Math/pow r-b 2))]
-    [(- t-sqrt number)
-     (- t-sqrt number (* number 2))
-     (- t-sqrt number (* number 4))
-     (- t-sqrt number (* number 6))]))
+    [(- t-sqrt tier)
+     (- t-sqrt tier (* tier 2))
+     (- t-sqrt tier (* tier 4))
+     (- t-sqrt tier (* tier 6))]))
 
 (defn manhattan-distance
   [number]
-  (let [t (java.lang.Math/sqrt number)
-        t-int (long t)
+  (let [sqrt-of-number (java.lang.Math/sqrt number)
+        t-int (long sqrt-of-number)
         t-int (if (even? t-int) (dec t-int) t-int)
         t-power (java.lang.Math/pow t-int 2)
         t-sqrt (/ (dec t-int) 2)
-        t-sqrt (if (> t t-int) (inc t-sqrt) t-sqrt)]
-    (+ t-sqrt (apply min (map #(java.lang.Math/abs (- number %)) (axis-numbers t-sqrt))))))
+        tier (if (> sqrt-of-number t-int) (inc t-sqrt) t-sqrt)]
+    (+ tier (apply min (map #(java.lang.Math/abs (- number %)) (axis-numbers tier))))))
 
 
 ;--- Part Two ---
@@ -61,6 +63,7 @@
 ;362  747  806--->   ...
 ;What is the first value written that is larger than your puzzle input?
 
+;; ver1
 (defn value-of-coord
   [x y]
   (cond
@@ -171,5 +174,39 @@
             (< num t) (first (filter #(< num %) (side-numbers x :top)))
             (< num l) (first (filter #(< num %) (side-numbers x :left)))
             (< num b) (first (filter #(< num %) (side-numbers x :bottom)))))))))
+;; ver1
 
-
+;;ver2
+(defn next-larger
+  [number]
+  (let [next-data-fn (fn [[x y] direction]
+                       (case direction
+                         :up [[x (inc y)] (if (= x (inc y)) :left :up)]
+                         :left [[(dec x) y] (if (= (dec x) (- y)) :down :left)]
+                         :down [[x (dec y)] (if (= x (dec y)) :right :down)]
+                         :right [[(inc x) y] (if (= x (- y)) :up :right)]))
+        data-coll (iterate
+                    (fn [{:keys [history data coord] :as data-map}]
+                      (let [[x y] coord
+                            direction (last data)
+                            cur-data (+ (get history [(inc x) y] 0)
+                                        (get history [(inc x) (inc y)] 0)
+                                        (get history [x (inc y)] 0)
+                                        (get history [(dec x) (inc y)] 0)
+                                        (get history [(dec x) y] 0)
+                                        (get history [(dec x) (dec y)] 0)
+                                        (get history [x (dec y)] 0)
+                                        (get history [(inc x) (dec y)] 0))
+                            next-data (next-data-fn coord direction)]
+                        (-> (update data-map :history assoc coord cur-data)
+                            (assoc :coord (first next-data))
+                            (assoc :data [cur-data (last next-data)]))))
+                    {:history {[0 0] 1}
+                     :data    [1 :up]
+                     :coord   [1 0]})]
+    (loop [seq data-coll]
+      (let [{:keys [data] :as s} (first seq)]
+        (if (<= (first data) number)
+          (recur (rest seq))
+          (first data))))))
+;;ver2
