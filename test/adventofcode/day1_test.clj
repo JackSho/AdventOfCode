@@ -1,6 +1,6 @@
 (ns adventofcode.day1-test
-  (use [adventofcode.day1])
-  (:require [clojure.test :refer :all]))
+  (:require [clojure.test :refer :all])
+  (:use [adventofcode.day1]))
 
 ;;http://adventofcode.com/2017/day/1/input
 
