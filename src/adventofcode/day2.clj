@@ -19,12 +19,14 @@
 ;
 ;What is the checksum for the spreadsheet in your puzzle input?
 
+(defn difference-max-min
+  [line]
+  (let [num-line (map #(java.lang.Integer. %) (clojure.string/split line #"\s"))]
+    (- (apply max num-line) (apply min num-line))))
+
 (defn checksum
   [str]
-  (let [arrs (map (fn [line]
-                    (let [num-line (map #(java.lang.Integer. %) (clojure.string/split line #"\s"))]
-                      (- (apply max num-line) (apply min num-line)))) (clojure.string/split-lines str))]
-    (apply + arrs)))
+  (apply + (map difference-max-min (clojure.string/split-lines str))))
 
 
 ;--- Part Two ---
@@ -46,29 +48,27 @@
 ;
 ;What is the sum of each row's result in your puzzle input?
 
-(defn find-factor
-  [num-coll]
-  (let [sorted-coll (sort num-coll)
-        [nu nu-mults]
-        (first
-          (filter
-            (fn [[_ mults]] (not-empty mults))
-            (reduce
-              (fn [result number]
-                (conj
-                  result
-                  [number
-                   (filter
-                     (fn [n] (let [v (/ n number)] (and (= (type v) java.lang.Long) (> v 1))))
-                     sorted-coll)]))
-              '()
-              sorted-coll)))]
-    (/ (first nu-mults) nu)))
+(defn find-multiple
+  [num coll]
+  (reduce
+    (fn [multiple-coll data]
+      (let [v (/ data num)]
+        (if (and (= (type v) java.lang.Long) (> v 1))
+          (conj multiple-coll data)
+          multiple-coll)))
+    '()
+    coll))
+
+(defn division
+  [line]
+  (let [num-line (sort (map #(java.lang.Integer. %) (clojure.string/split line #"\s")))
+        [num coll] (first
+                     (filter
+                       (fn [[_ multi-coll]] (not-empty multi-coll))
+                       (map (fn [d] [d (find-multiple d num-line)]) num-line)))]
+    (/ (first coll) num)))
 
 (defn checksum-mulriple
   [str]
-  (let [arrs (map (fn [line]
-                    (let [num-line (map #(java.lang.Integer. %) (clojure.string/split line #"\s"))]
-                      (find-factor num-line))) (clojure.string/split-lines str))]
-    (apply + arrs)))
+  (apply + (map division (clojure.string/split-lines str))))
 
