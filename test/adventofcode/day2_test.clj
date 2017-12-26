@@ -9,13 +9,13 @@
 (deftest day2-test
 
   (testing "day2-test-part1"
-    (is (= (difference-max-min "5 1 9 5") 8))
-    (is (= (difference-max-min "7 5 3") 4))
-    (is (= (difference-max-min "2 4 6 8") 6))
+    (is (= (difference-max-min [5 1 9 5]) 8))
+    (is (= (difference-max-min [7 5 3]) 4))
+    (is (= (difference-max-min [2 4 6 8]) 6))
     (is (= (checksum input) 45972)))
 
   (testing "day2-test-part2"
-    (is (= (division "5 9 2 8") 4))
-    (is (= (division "9 4 7 3") 3))
-    (is (= (division "3 8 6 5") 2))
+    (is (= (division [5 9 2 8]) 4))
+    (is (= (division [9 4 7 3]) 3))
+    (is (= (division [3 8 6 5]) 2))
     (is (= (checksum-mulriple input) 326))))

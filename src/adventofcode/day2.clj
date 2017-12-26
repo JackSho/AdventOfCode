@@ -1,4 +1,5 @@
-(ns adventofcode.day2)
+(ns adventofcode.day2
+  (:require [adventofcode.core :as core]))
 
 ;; http://adventofcode.com/2017/day/2
 
@@ -19,15 +20,30 @@
 ;
 ;What is the checksum for the spreadsheet in your puzzle input?
 
+(defn matrix-str->coll
+  [string]
+  (->> (clojure.string/split-lines string)
+       (map (partial core/string->coll #"\d+" #(java.lang.Integer/valueOf %)))))
+
 (defn difference-max-min
-  [line]
-  (let [num-line (map #(java.lang.Integer. %) (clojure.string/split line #"\s"))]
-    (- (apply max num-line) (apply min num-line))))
+  [num-seq]
+  (- (apply max num-seq) (apply min num-seq)))
+
+(defn matrix-checksum
+  [coll row-fn checksum-fn]
+  (->> (map row-fn coll)
+       checksum-fn))
+
+(defn checksum-coll
+  [coll]
+  (apply + 0 coll))
 
 (defn checksum
-  [str]
-  (apply + (map difference-max-min (clojure.string/split-lines str))))
-
+  [string]
+  (matrix-checksum
+    (matrix-str->coll string)
+    difference-max-min
+    checksum-coll))
 
 ;--- Part Two ---
 ;"Great work; looks like we're on the right track after all. Here's a star for your effort." However, the program seems a little worried. Can programs be worried?
@@ -49,26 +65,20 @@
 ;What is the sum of each row's result in your puzzle input?
 
 (defn find-multiple
-  [num coll]
-  (reduce
-    (fn [multiple-coll data]
-      (let [v (/ data num)]
-        (if (and (= (type v) java.lang.Long) (> v 1))
-          (conj multiple-coll data)
-          multiple-coll)))
-    '()
-    coll))
+  [coll num]
+  (filter #(and (= 0 (mod % num)) (> % num)) coll))
 
 (defn division
-  [line]
-  (let [num-line (sort (map #(java.lang.Integer. %) (clojure.string/split line #"\s")))
-        [num coll] (first
-                     (filter
-                       (fn [[_ multi-coll]] (not-empty multi-coll))
-                       (map (fn [d] [d (find-multiple d num-line)]) num-line)))]
-    (/ (first coll) num)))
+  [num-coll]
+  (->> (map (fn [num] [num (find-multiple num-coll num)]) num-coll)
+       (filter #(not-empty (last %)))
+       (map (fn [[num c]] (quot (first c) num)))
+       first))
 
 (defn checksum-mulriple
-  [str]
-  (apply + (map division (clojure.string/split-lines str))))
+  [string]
+  (matrix-checksum
+    (matrix-str->coll string)
+    division
+    checksum-coll))
 
