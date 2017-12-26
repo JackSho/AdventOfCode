@@ -1,4 +1,5 @@
-(ns adventofcode.day1)
+(ns adventofcode.day1
+  (:require [adventofcode.core :as core]))
 
 ;; http://adventofcode.com/2017/day/1
 
@@ -23,16 +24,19 @@
 ;91212129 produces 9 because the only digit that matches the next one is the last digit, 9.
 ;What is the solution to your captcha?
 
+(defn offset-seq-fn
+  [offset seq]
+  (map-indexed
+    (fn [i _] (nth seq (mod (+ i offset) (count seq))))
+    seq))
+
 (defn captcha
-  [str]
-  (if (>= 1 (count str))
-    0
-    (let [se (seq str)
-          char->int (fn [ch] (- (long ch) (long \0)))]
-      (first (reduce (fn [[num cur-ch] next-ch]
-                       (if (= cur-ch next-ch)
-                         [(+ num (char->int cur-ch)) next-ch]
-                         [num next-ch])) [0 (last se)] se)))))
+  [num-str]
+  (let [num-seq (core/string->num-seq num-str)]
+    (->> ((partial offset-seq-fn 1) num-seq)
+         (map #(when (= %1 %2) %1) num-seq)
+         (filter identity)
+         (apply + 0))))
 
 
 ;--- Part Two ---
@@ -50,18 +54,9 @@
 ;What is the solution to your new captcha?
 
 (defn captcha-half
-  [s]
-  (if (>= 1 (count s))
-    0
-    (let [half-len (/ (count s) 2)
-          new-str (str s (subs s 0 (inc half-len)))
-          char->int (fn [ch] (- (long ch) (long \0)))]
-      (first
-        (reduce
-          (fn [[num index t-ch] cur-ch]
-            (let [next-index (inc index)]
-              [(+ num (if (= t-ch cur-ch) (char->int cur-ch) 0))
-               next-index
-               (nth new-str (+ next-index half-len))]))
-          [0 0 (nth new-str half-len)]
-          s)))))
+  [num-str]
+  (let [num-seq (core/string->num-seq num-str)]
+    (->> ((partial offset-seq-fn (quot (count num-seq) 2)) num-seq)
+         (map #(when (= %1 %2) %1) num-seq)
+         (filter identity)
+         (apply + 0))))
