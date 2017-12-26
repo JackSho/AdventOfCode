@@ -1,4 +1,5 @@
-(ns adventofcode.day2)
+(ns adventofcode.day2
+  (:require [adventofcode.core :as core]))
 
 ;; http://adventofcode.com/2017/day/2
 
@@ -20,13 +21,15 @@
 ;What is the checksum for the spreadsheet in your puzzle input?
 
 (defn difference-max-min
-  [line]
-  (let [num-line (map #(java.lang.Integer. %) (clojure.string/split line #"\s"))]
-    (- (apply max num-line) (apply min num-line))))
+  [num-seq]
+  (- (apply max num-seq) (apply min num-seq)))
 
 (defn checksum
   [str]
-  (apply + (map difference-max-min (clojure.string/split-lines str))))
+  (->> (clojure.string/split-lines str)
+       (map core/line->num-coll)
+       (map difference-max-min)
+       (apply + 0)))
 
 
 ;--- Part Two ---
@@ -49,26 +52,20 @@
 ;What is the sum of each row's result in your puzzle input?
 
 (defn find-multiple
-  [num coll]
-  (reduce
-    (fn [multiple-coll data]
-      (let [v (/ data num)]
-        (if (and (= (type v) java.lang.Long) (> v 1))
-          (conj multiple-coll data)
-          multiple-coll)))
-    '()
-    coll))
+  [coll num]
+  (filter #(and (= 0 (mod % num)) (> % num)) coll))
 
 (defn division
-  [line]
-  (let [num-line (sort (map #(java.lang.Integer. %) (clojure.string/split line #"\s")))
-        [num coll] (first
-                     (filter
-                       (fn [[_ multi-coll]] (not-empty multi-coll))
-                       (map (fn [d] [d (find-multiple d num-line)]) num-line)))]
-    (/ (first coll) num)))
+  [num-coll]
+  (->> (map (fn [num] [num (find-multiple num-coll num)]) num-coll)
+       (filter #(not-empty (last %)))
+       (map (fn [[num c]] (quot (first c) num)))
+       first))
 
 (defn checksum-mulriple
   [str]
-  (apply + (map division (clojure.string/split-lines str))))
+  (->> (clojure.string/split-lines str)
+       (map core/line->num-coll)
+       (map division)
+       (apply + 0)))
 

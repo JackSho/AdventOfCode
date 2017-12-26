@@ -24,17 +24,17 @@
 ;91212129 produces 9 because the only digit that matches the next one is the last digit, 9.
 ;What is the solution to your captcha?
 
-(defn offset-seq-fn
-  [offset seq]
+(defn offset-coll-fn
+  [offset coll]
   (map-indexed
-    (fn [i _] (nth seq (mod (+ i offset) (count seq))))
-    seq))
+    (fn [i _] (nth coll (mod (+ i offset) (count coll))))
+    coll))
 
 (defn captcha
   [num-str]
-  (let [num-seq (core/string->num-seq num-str)]
-    (->> ((partial offset-seq-fn 1) num-seq)
-         (map #(when (= %1 %2) %1) num-seq)
+  (let [num-coll (core/string->num-coll num-str)]
+    (->> ((partial offset-coll-fn 1) num-coll)
+         (map #(when (= %1 %2) %1) num-coll)
          (filter identity)
          (apply + 0))))
 
@@ -55,8 +55,8 @@
 
 (defn captcha-half
   [num-str]
-  (let [num-seq (core/string->num-seq num-str)]
-    (->> ((partial offset-seq-fn (quot (count num-seq) 2)) num-seq)
-         (map #(when (= %1 %2) %1) num-seq)
+  (let [num-coll (core/string->num-coll num-str)]
+    (->> ((partial offset-coll-fn (quot (count num-coll) 2)) num-coll)
+         (map #(when (= %1 %2) %1) num-coll)
          (filter identity)
          (apply + 0))))
