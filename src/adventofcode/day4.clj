@@ -1,4 +1,5 @@
-(ns adventofcode.day4)
+(ns adventofcode.day4
+  (:require [adventofcode.core :as core]))
 
 ;; http://adventofcode.com/2017/day/4
 
@@ -14,15 +15,13 @@
 ;aa bb cc dd aaa is valid - aa and aaa count as different words.
 ;The system's full passphrase list is available as your puzzle input. How many passphrases are valid?
 
-(defn valid?
-  [line]
-  (let [vec (clojure.string/split line #"\s")]
-    (= (count vec) (count (set vec)))))
-
 (defn count-valid
   [string]
-  (count (filter valid? (clojure.string/split-lines string))))
-
+  (->> (clojure.string/split-lines string)
+       (map (partial core/string->coll #"\w+" str))
+       (map #(apply distinct? %))
+       (filter true?)
+       (count)))
 
 ;--- Part Two ---
 ;For added security, yet another system policy has been put in place. Now, a valid passphrase must contain no two words that are anagrams of each other - that is, a passphrase is invalid if any word's letters can be rearranged to form any other word in the passphrase.
@@ -36,11 +35,10 @@
 ;oiii ioii iioi iiio is not valid - any of these words can be rearranged to form any other word.
 ;Under this new system policy, how many passphrases are valid?
 
-(defn valid-like?
-  [line]
-  (let [str-coll (map #(apply str (sort %)) (clojure.string/split line #"\s"))]
-    (apply distinct? str-coll)))
-
 (defn count-valid-like
   [string]
-  (count (filter valid-like? (clojure.string/split-lines string))))
+  (->> (clojure.string/split-lines string)
+       (map (partial core/string->coll #"\w+" #(str (sort %))))
+       (map #(apply distinct? %))
+       (filter true?)
+       (count)))

@@ -9,15 +9,7 @@
 (deftest day4-test
 
   (testing "day4-test-part1"
-    (is (= (valid? "aa bb cc dd ee") true))
-    (is (= (valid? "aa bb cc dd aa") false))
-    (is (= (valid? "aa bb cc dd aaa") true))
     (is (= (count-valid input) 477)))
 
   (testing "day4-test-part2"
-    (is (= (valid-like? "abcde fghij") true))
-    (is (= (valid-like? "abcde xyz ecdab") false))
-    (is (= (valid-like? "a ab abc abd abf abj") true))
-    (is (= (valid-like? "iiii oiii ooii oooi oooo") true))
-    (is (= (valid-like? "oiii ioii iioi iiio") false))
     (is (= (count-valid-like input) 167))))

@@ -1,4 +1,5 @@
-(ns adventofcode.day5)
+(ns adventofcode.day5
+  (:require [adventofcode.core :as core]))
 
 ;; http://adventofcode.com/2017/day/5
 
@@ -28,16 +29,21 @@
 ;
 ;How many steps does it take to reach the exit?
 
+(defn iterate-fn
+  [index-update-fn coll-update-fn]
+  (fn [[step index coll]]
+    [(inc step) (index-update-fn index coll) (coll-update-fn index coll)]))
+
 (defn escape-maze
   [string]
-  (let [strs (mapv #(java.lang.Integer/valueOf %) (clojure.string/split-lines string))
-        cnts (count strs)]
-    (loop [cur-ind 0
-           maze strs
-           steps 0]
-      (if (< cur-ind cnts)
-        (recur (+ cur-ind (nth maze cur-ind)) (update maze cur-ind inc) (inc steps))
-        steps))))
+  (let [num-coll (->> (core/string->coll #"-?\d+" #(java.lang.Integer/valueOf %) string)
+                      vec)
+        index-update-fn (fn [index coll] (+ index (nth coll index)))
+        coll-update-fn (fn [index coll] (update coll index inc))
+        breaked-fn (fn [[step index coll]] (when (>= index (count coll)) step))]
+    (->> [0 0 num-coll]
+         (core/coll-fn (iterate-fn index-update-fn coll-update-fn))
+         (some breaked-fn))))
 
 
 ;--- Part Two ---
@@ -49,13 +55,13 @@
 
 (defn exit-maze
   [string]
-  (let [strs (mapv #(java.lang.Integer/valueOf %) (clojure.string/split-lines string))
-        cnts (count strs)]
-    (loop [cur-ind 0
-           maze strs
-           steps 0]
-      (if (< cur-ind cnts)
-        (let [v (nth maze cur-ind)]
-          (recur (+ cur-ind v) (if (< v 3) (update maze cur-ind inc)
-                                           (update maze cur-ind dec)) (inc steps)))
-        steps))))
+  (let [num-coll (->> (core/string->coll #"-?\d+" #(java.lang.Integer/valueOf %) string)
+                      vec)
+        index-update-fn (fn [index coll] (+ index (nth coll index)))
+        coll-update-fn (fn [index coll] (if (< (nth coll index) 3)
+                                          (update coll index inc)
+                                          (update coll index dec)))
+        breaked-fn (fn [[step index coll]] (when (>= index (count coll)) step))]
+    (->> [0 0 num-coll]
+         (core/coll-fn (iterate-fn index-update-fn coll-update-fn))
+         (some breaked-fn))))

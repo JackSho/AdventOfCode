@@ -1,4 +1,5 @@
-(ns adventofcode.day3)
+(ns adventofcode.day3
+  (:require [adventofcode.core :as core]))
 
 ;; http://adventofcode.com/2017/day/3
 
@@ -43,18 +44,15 @@
           (assoc :next-coord (next-coord-fn cur-coord next-direction))
           (assoc :data [cur-coord cur-data])))))
 
-(defn coll-fn
-  [init-data iterate-fn]
-  (iterate iterate-fn init-data))
-
 (defn manhattan-distance
   [number]
-  (let [init-data {:history    {[0 0] 1}
-                   :data       [[0 0] 1]
-                   :next-coord [[1 0] :up]}
-        next-data-fn (fn [{:keys [data]}] (inc (second data)))
-        breaked-fn (fn [{:keys [data]}] (when (= (second data) number) (manhattan (first data))))]
-    (->> (coll-fn init-data (iterate-fn next-data-fn))
+  (let [next-data-fn (fn [{:keys [data]}] (inc (second data)))
+        breaked-fn (fn [{:keys [data]}]
+                     (when (= (second data) number) (manhattan (first data))))]
+    (->> {:history    {[0 0] 1}
+          :data       [[0 0] 1]
+          :next-coord [[1 0] :up]}
+         (core/coll-fn (iterate-fn next-data-fn))
          (some breaked-fn))))
 
 
@@ -79,10 +77,7 @@
 
 (defn next-larger
   [number]
-  (let [init-data {:history    {[0 0] 1}
-                   :data       [[0 0] 1]
-                   :next-coord [[1 0] :up]}
-        next-data-fn (fn [{:keys [history next-coord] :as data-map}]
+  (let [next-data-fn (fn [{:keys [history next-coord] :as data-map}]
                        (let [[[x y] _] next-coord]
                          (+ (get history [(inc x) y] 0)
                             (get history [(inc x) (inc y)] 0)
@@ -92,6 +87,10 @@
                             (get history [(dec x) (dec y)] 0)
                             (get history [x (dec y)] 0)
                             (get history [(inc x) (dec y)] 0))))
-        breaked-fn (fn [{:keys [data]}] (when (> (second data) number) (second data)))]
-    (->> (coll-fn init-data (iterate-fn next-data-fn))
+        breaked-fn (fn [{:keys [data]}]
+                     (when (> (second data) number) (second data)))]
+    (->> {:history    {[0 0] 1}
+          :data       [[0 0] 1]
+          :next-coord [[1 0] :up]}
+         (core/coll-fn (iterate-fn next-data-fn))
          (some breaked-fn))))
