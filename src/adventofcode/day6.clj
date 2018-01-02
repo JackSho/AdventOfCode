@@ -1,4 +1,5 @@
-(ns adventofcode.day6)
+(ns adventofcode.day6
+  (:require [adventofcode.core :as core]))
 
 ;; http://adventofcode.com/2017/day/6
 
@@ -23,39 +24,37 @@
 ;
 ;Given the initial block counts in your puzzle input, how many redistribution cycles must be completed before a configuration is produced that has been seen before?
 
+(defn reallocated-coll
+  [number length]
+  (let [mean (if (<= number length) 1 (quot number length))
+        remain (- number (* (dec length) mean))]
+    (if (nat-int? remain)
+      (concat (repeat (dec length) mean) [(- remain number)])
+      (concat (repeat number 1) (repeat (dec (- length number)) 0) [(- number)]))))
+
+(defn max-index
+  [coll]
+  (core/index-of-coll #(apply max %) coll))
+
+(defn iterate-reallocate
+  [coll]
+  (->> (reallocated-coll (apply max coll) (count coll))
+       ((core/coll-offset-fn (inc (max-index coll))))
+       (map #(+ %1 %2) coll)))
+
 (defn reallocation-times
-  [strs]
-  (let [v (map #(java.lang.Integer/valueOf %) (clojure.string/split strs #"\s"))
-        cnt (count v)
-        index-of-max-fn (fn [seq] (.indexOf seq (apply max seq)))
-        datas (iterate
-                (fn [cur-seq]
-                  (let [m (apply max cur-seq)
-                        index (index-of-max-fn cur-seq)
-                        mean (/ m (dec cnt))
-                        mean (if (< mean 1) 1 (long mean))
-                        remain (- m (* (dec cnt) mean))]
-                    (map-indexed (fn [i d]
-                                   (if (>= remain 0)
-                                     (if-not (= i index) (+ d mean) remain)
-                                     (if-not (= i index)
-                                       (if (< i index)
-                                         (if (< (- i index) remain)
-                                           (+ d mean)
-                                           d)
-                                         (if (< (- i index) (+ cnt remain))
-                                           (+ d mean)
-                                           d))
-                                       0))
-                                   ) cur-seq)))
-                v)]
-    (loop [data datas
-           data-map #{}
-           times 0]
+  [string]
+  (let [data-colls
+        (->> (core/string->coll #"\d+" #(java.lang.Integer/valueOf %) string)
+             (core/iterate-coll iterate-reallocate))]
+    (loop [{:keys [data data-map data-times] :as datas}
+           {:data data-colls :data-map {} :data-times 0}]
       (let [cur-data (first data)]
         (if-not (contains? data-map cur-data)
-          (recur (rest data) (conj data-map cur-data) (inc times))
-          times)))))
+          (recur (-> (update datas :data rest)
+                     (update :data-map #(assoc % cur-data data-times))
+                     (update :data-times inc)))
+          data-times)))))
 
 
 ;--- Part Two ---
@@ -66,35 +65,15 @@
 ;How many cycles are in the infinite loop that arises from the configuration in your puzzle input?
 
 (defn reallocation-seen-again
-  [strs]
-  (let [v (map #(java.lang.Integer/valueOf %) (clojure.string/split strs #"\s"))
-        cnt (count v)
-        index-of-max-fn (fn [seq] (.indexOf seq (apply max seq)))
-        datas (iterate
-                (fn [cur-seq]
-                  (let [m (apply max cur-seq)
-                        index (index-of-max-fn cur-seq)
-                        mean (/ m (dec cnt))
-                        mean (if (< mean 1) 1 (long mean))
-                        remain (- m (* (dec cnt) mean))]
-                    (map-indexed (fn [i d]
-                                   (if (>= remain 0)
-                                     (if-not (= i index) (+ d mean) remain)
-                                     (if-not (= i index)
-                                       (if (< i index)
-                                         (if (< (- i index) remain)
-                                           (+ d mean)
-                                           d)
-                                         (if (< (- i index) (+ cnt remain))
-                                           (+ d mean)
-                                           d))
-                                       0))
-                                   ) cur-seq)))
-                v)]
-    (loop [data datas
-           data-map {}
-           times 0]
+  [string]
+  (let [data-colls
+        (->> (core/string->coll #"\d+" #(java.lang.Integer/valueOf %) string)
+             (core/iterate-coll iterate-reallocate))]
+    (loop [{:keys [data data-map data-times] :as datas}
+           {:data data-colls :data-map {} :data-times 0}]
       (let [cur-data (first data)]
         (if-not (contains? data-map cur-data)
-          (recur (rest data) (assoc data-map cur-data times) (inc times))
-          (- times (get data-map cur-data)))))))
+          (recur (-> (update datas :data rest)
+                     (update :data-map #(assoc % cur-data data-times))
+                     (update :data-times inc)))
+          (- data-times (get data-map cur-data)))))))

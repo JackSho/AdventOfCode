@@ -32,7 +32,9 @@
 (defn iterate-fn
   [index-update-fn coll-update-fn]
   (fn [[step index coll]]
-    [(inc step) (index-update-fn index coll) (coll-update-fn index coll)]))
+    [(inc step)
+     (index-update-fn index coll)
+     (coll-update-fn index coll)]))
 
 (defn escape-maze
   [string]
@@ -42,7 +44,7 @@
         coll-update-fn (fn [index coll] (update coll index inc))
         breaked-fn (fn [[step index coll]] (when (>= index (count coll)) step))]
     (->> [0 0 num-coll]
-         (core/coll-fn (iterate-fn index-update-fn coll-update-fn))
+         (core/iterate-coll (iterate-fn index-update-fn coll-update-fn))
          (some breaked-fn))))
 
 
@@ -63,5 +65,5 @@
                                           (update coll index dec)))
         breaked-fn (fn [[step index coll]] (when (>= index (count coll)) step))]
     (->> [0 0 num-coll]
-         (core/coll-fn (iterate-fn index-update-fn coll-update-fn))
+         (core/iterate-coll (iterate-fn index-update-fn coll-update-fn))
          (some breaked-fn))))

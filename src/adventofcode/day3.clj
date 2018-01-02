@@ -52,7 +52,7 @@
     (->> {:history    {[0 0] 1}
           :data       [[0 0] 1]
           :next-coord [[1 0] :up]}
-         (core/coll-fn (iterate-fn next-data-fn))
+         (core/iterate-coll (iterate-fn next-data-fn))
          (some breaked-fn))))
 
 
@@ -75,22 +75,28 @@
 ;362  747  806--->   ...
 ;What is the first value written that is larger than your puzzle input?
 
+(defn around-coords
+  [[x y]]
+  [[(inc x) y]
+   [(inc x) (inc y)]
+   [x (inc y)]
+   [(dec x) (inc y)]
+   [(dec x) y]
+   [(dec x) (dec y)]
+   [x (dec y)]
+   [(inc x) (dec y)]])
+
 (defn next-larger
   [number]
-  (let [next-data-fn (fn [{:keys [history next-coord] :as data-map}]
-                       (let [[[x y] _] next-coord]
-                         (+ (get history [(inc x) y] 0)
-                            (get history [(inc x) (inc y)] 0)
-                            (get history [x (inc y)] 0)
-                            (get history [(dec x) (inc y)] 0)
-                            (get history [(dec x) y] 0)
-                            (get history [(dec x) (dec y)] 0)
-                            (get history [x (dec y)] 0)
-                            (get history [(inc x) (dec y)] 0))))
+  (let [next-data-fn (fn [{:keys [history next-coord]}]
+                       (->> (first next-coord)
+                            (around-coords)
+                            (map #(get history % 0))
+                            (apply + 0)))
         breaked-fn (fn [{:keys [data]}]
                      (when (> (second data) number) (second data)))]
     (->> {:history    {[0 0] 1}
           :data       [[0 0] 1]
           :next-coord [[1 0] :up]}
-         (core/coll-fn (iterate-fn next-data-fn))
+         (core/iterate-coll (iterate-fn next-data-fn))
          (some breaked-fn))))

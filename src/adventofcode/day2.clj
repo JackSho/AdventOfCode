@@ -30,7 +30,7 @@
   (- (apply max num-seq) (apply min num-seq)))
 
 (defn matrix-checksum
-  [coll row-fn checksum-fn]
+  [row-fn checksum-fn coll]
   (->> (map row-fn coll)
        checksum-fn))
 
@@ -40,10 +40,8 @@
 
 (defn checksum
   [string]
-  (matrix-checksum
-    (matrix-str->coll string)
-    difference-max-min
-    checksum-coll))
+  (->> (matrix-str->coll string)
+       (matrix-checksum difference-max-min checksum-coll)))
 
 ;--- Part Two ---
 ;"Great work; looks like we're on the right track after all. Here's a star for your effort." However, the program seems a little worried. Can programs be worried?
@@ -77,8 +75,6 @@
 
 (defn checksum-mulriple
   [string]
-  (matrix-checksum
-    (matrix-str->coll string)
-    division
-    checksum-coll))
+  (->> (matrix-str->coll string)
+       (matrix-checksum division checksum-coll)))
 
