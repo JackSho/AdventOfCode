@@ -36,16 +36,24 @@
      (index-update-fn index coll)
      (coll-update-fn index coll)]))
 
+(defn index-update
+  [index coll]
+  (+ index (nth coll index)))
+
+(defn breake-pred
+  [[step index coll]]
+  (when (>= index (count coll)) step))
+
 (defn escape-maze
   [string]
-  (let [num-coll (->> (core/string->coll #"-?\d+" #(java.lang.Integer/valueOf %) string)
-                      vec)
-        index-update-fn (fn [index coll] (+ index (nth coll index)))
-        coll-update-fn (fn [index coll] (update coll index inc))
-        breaked-fn (fn [[step index coll]] (when (>= index (count coll)) step))]
-    (->> [0 0 num-coll]
-         (core/iterate-coll (iterate-fn index-update-fn coll-update-fn))
-         (some breaked-fn))))
+  (let [coll-update-fn (fn [index coll]
+                         (update coll index inc))]
+    (->> string
+         (core/string->coll #"-?\d+" #(java.lang.Integer/valueOf %))
+         (vec)
+         (conj [0 0])
+         (core/iterate-coll (iterate-fn index-update coll-update-fn))
+         (some breake-pred))))
 
 
 ;--- Part Two ---
@@ -57,13 +65,13 @@
 
 (defn exit-maze
   [string]
-  (let [num-coll (->> (core/string->coll #"-?\d+" #(java.lang.Integer/valueOf %) string)
-                      vec)
-        index-update-fn (fn [index coll] (+ index (nth coll index)))
-        coll-update-fn (fn [index coll] (if (< (nth coll index) 3)
-                                          (update coll index inc)
-                                          (update coll index dec)))
-        breaked-fn (fn [[step index coll]] (when (>= index (count coll)) step))]
-    (->> [0 0 num-coll]
-         (core/iterate-coll (iterate-fn index-update-fn coll-update-fn))
-         (some breaked-fn))))
+  (let [coll-update-fn (fn [index coll]
+                         (if (< (nth coll index) 3)
+                           (update coll index inc)
+                           (update coll index dec)))]
+    (->> string
+         (core/string->coll #"-?\d+" #(java.lang.Integer/valueOf %))
+         (vec)
+         (conj [0 0])
+         (core/iterate-coll (iterate-fn index-update coll-update-fn))
+         (some breake-pred))))

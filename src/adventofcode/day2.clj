@@ -21,15 +21,18 @@
 ;What is the checksum for the spreadsheet in your puzzle input?
 
 (defn matrix-str->coll
+  "数字矩阵字符串转换成 coll"
   [string]
   (->> (clojure.string/split-lines string)
        (map (partial core/string->coll #"\d+" #(java.lang.Integer/valueOf %)))))
 
 (defn difference-max-min
-  [num-seq]
-  (- (apply max num-seq) (apply min num-seq)))
+  "coll 中最大值与最小值的差"
+  [num-coll]
+  (- (apply max num-coll) (apply min num-coll)))
 
 (defn matrix-checksum
+  "对矩阵 coll 求校验值，对每一行调用 row-fn，对其结果调用 checksum-fn"
   [row-fn checksum-fn coll]
   (->> (map row-fn coll)
        checksum-fn))
@@ -63,15 +66,19 @@
 ;What is the sum of each row's result in your puzzle input?
 
 (defn find-multiple
-  [coll num]
-  (filter #(and (= 0 (mod % num)) (> % num)) coll))
+  "在 coll 中找出能被 num 整除的数，不包含 num "
+  [num coll]
+  (filter #(and (> % num) (= 0 (mod % num))) coll))
 
 (defn division
+  "找出数字集合中第一个能被整除的两数之商"
   [num-coll]
-  (->> (map (fn [num] [num (find-multiple num-coll num)]) num-coll)
+  (->> num-coll
+       (map (fn [num] [num (find-multiple num num-coll)]))
        (filter #(not-empty (last %)))
-       (map (fn [[num c]] (quot (first c) num)))
-       first))
+       (map (fn [[num c]] [num (map #(quot % num) c)]))
+       (map #(first (last %)))
+       (first)))
 
 (defn checksum-mulriple
   [string]

@@ -25,6 +25,7 @@
 ;Given the initial block counts in your puzzle input, how many redistribution cycles must be completed before a configuration is produced that has been seen before?
 
 (defn reallocated-coll
+  "将一个整数 number 拆分成长度为 length 的序列"
   [number length]
   (let [mean (if (<= number length) 1 (quot number length))
         remain (- number (* (dec length) mean))]
@@ -33,6 +34,7 @@
       (concat (repeat number 1) (repeat (dec (- length number)) 0) [(- number)]))))
 
 (defn max-index
+  "coll 中数值最大的数的索引"
   [coll]
   (core/index-of-coll #(apply max %) coll))
 
@@ -44,9 +46,9 @@
 
 (defn reallocation-times
   [string]
-  (let [data-colls
-        (->> (core/string->coll #"\d+" #(java.lang.Integer/valueOf %) string)
-             (core/iterate-coll iterate-reallocate))]
+  (let [data-colls (->> string
+                        (core/string->coll #"\d+" #(java.lang.Integer/valueOf %))
+                        (core/iterate-coll iterate-reallocate))]
     (loop [{:keys [data data-map data-times] :as datas}
            {:data data-colls :data-map {} :data-times 0}]
       (let [cur-data (first data)]
@@ -66,9 +68,9 @@
 
 (defn reallocation-seen-again
   [string]
-  (let [data-colls
-        (->> (core/string->coll #"\d+" #(java.lang.Integer/valueOf %) string)
-             (core/iterate-coll iterate-reallocate))]
+  (let [data-colls (->> string
+                        (core/string->coll #"\d+" #(java.lang.Integer/valueOf %))
+                        (core/iterate-coll iterate-reallocate))]
     (loop [{:keys [data data-map data-times] :as datas}
            {:data data-colls :data-map {} :data-times 0}]
       (let [cur-data (first data)]

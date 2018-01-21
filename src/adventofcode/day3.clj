@@ -24,10 +24,12 @@
 ;How many steps are required to carry the data from the square identified in your puzzle input all the way to the access port?
 
 (defn manhattan
+  "坐标与原点的距离"
   [[x y]]
   (+ (java.lang.Math/abs x) (java.lang.Math/abs y)))
 
-(defn next-coord-fn
+(defn next-coord-data
+  "下一个坐标数据"
   [[x y] direction]
   (case direction
     :up [[x (inc y)] (if (= x (inc y)) :left :up)]
@@ -41,14 +43,15 @@
     (let [[cur-coord next-direction] next-coord
           cur-data (next-data-fn data-map)]
       (-> (update data-map :history assoc cur-coord cur-data)
-          (assoc :next-coord (next-coord-fn cur-coord next-direction))
+          (assoc :next-coord (next-coord-data cur-coord next-direction))
           (assoc :data [cur-coord cur-data])))))
 
 (defn manhattan-distance
   [number]
   (let [next-data-fn (fn [{:keys [data]}] (inc (second data)))
         breaked-fn (fn [{:keys [data]}]
-                     (when (= (second data) number) (manhattan (first data))))]
+                     (when (= (second data) number)
+                       (manhattan (first data))))]
     (->> {:history    {[0 0] 1}
           :data       [[0 0] 1]
           :next-coord [[1 0] :up]}
@@ -76,6 +79,7 @@
 ;What is the first value written that is larger than your puzzle input?
 
 (defn around-coords
+  "坐标周围的 8 个坐标序列"
   [[x y]]
   [[(inc x) y]
    [(inc x) (inc y)]
@@ -94,7 +98,8 @@
                             (map #(get history % 0))
                             (apply + 0)))
         breaked-fn (fn [{:keys [data]}]
-                     (when (> (second data) number) (second data)))]
+                     (when (> (second data) number)
+                       (second data)))]
     (->> {:history    {[0 0] 1}
           :data       [[0 0] 1]
           :next-coord [[1 0] :up]}
