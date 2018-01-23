@@ -24,6 +24,26 @@
   [coll-op-fn coll]
   (.indexOf coll (coll-op-fn coll)))
 
+(defn sseq
+  "返回子序列，如果要求的长度比 coll 长，则循环"
+  [start length coll]
+  (let [cnt (count coll)]
+    (->> (range length)
+         (map #(nth coll (mod (+ start %) cnt))))))
+
+(defn merge-colls
+  "合并多个序列为一个"
+  [& colls]
+  (reduce
+    (fn [s coll]
+      (let [s-len (count s)
+            c-len (count coll)]
+        (map #(if (< % c-len)
+                (nth coll %)
+                (nth s %)) (range (max s-len c-len)))))
+    '()
+    colls))
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
