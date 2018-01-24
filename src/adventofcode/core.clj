@@ -24,6 +24,10 @@
   [coll-op-fn coll]
   (.indexOf coll (coll-op-fn coll)))
 
+(defn convert-coll
+  [convert-fn coll]
+  (map convert-fn coll))
+
 (defn sseq
   "返回子序列，如果要求的长度比 coll 长，则循环"
   [start length coll]
