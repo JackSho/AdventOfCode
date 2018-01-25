@@ -48,6 +48,10 @@
     '()
     colls))
 
+(defn remove-keys
+  [m keyseq]
+  (reduce #(dissoc %) m keyseq))
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
