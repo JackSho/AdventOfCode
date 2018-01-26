@@ -44,19 +44,21 @@
        ((core/coll-offset-fn (inc (max-index coll))))
        (map #(+ %1 %2) coll)))
 
+(defn real-times
+  [{:keys [data data-map data-times] :as datas}]
+  (as-> (first data) cur-data
+        (if (contains? data-map cur-data)
+          data-times
+          (fn [] (real-times (-> (update datas :data rest)
+                                 (update :data-map #(assoc % cur-data data-times))
+                                 (update :data-times inc)))))))
+
 (defn reallocation-times
   [string]
   (let [data-colls (->> string
                         (core/string->coll #"\d+" #(java.lang.Integer/valueOf %))
                         (core/iterate-coll iterate-reallocate))]
-    (loop [{:keys [data data-map data-times] :as datas}
-           {:data data-colls :data-map {} :data-times 0}]
-      (let [cur-data (first data)]
-        (if-not (contains? data-map cur-data)
-          (recur (-> (update datas :data rest)
-                     (update :data-map #(assoc % cur-data data-times))
-                     (update :data-times inc)))
-          data-times)))))
+    (trampoline real-times {:data data-colls :data-map {} :data-times 0})))
 
 
 ;--- Part Two ---
