@@ -24,25 +24,31 @@
 ;
 ;What is the largest value in any register after completing the instructions in your puzzle input?
 
+(defn cond-pred-fn
+  [op cond-reg cond-num]
+  (fn [data-map]
+    (op (get data-map cond-reg 0) cond-num)))
+
 (defn parse-instruct-line
   "将一行指令字符串解析成一条指令"
   [line]
-  (let [vs (clojure.string/split line #"\s")
-        register (symbol (nth vs 0))
-        delta (java.lang.Integer/valueOf (nth vs 2))
-        op-fn (fn [op data-map] (update data-map register #(op (or % 0) delta)))
+  (let [vs        (clojure.string/split line #"\s")
+        register  (symbol (nth vs 0))
+        delta     (java.lang.Integer/valueOf (nth vs 2))
+        op-fn     (fn [op data-map]
+                    (update data-map register #(op (or % 0) delta)))
         update-fn (case (nth vs 1)
                     "dec" (partial op-fn -)
                     "inc" (partial op-fn +))
-        cond-num (java.lang.Integer/valueOf (nth vs 6))
-        cond-reg (symbol (nth vs 4))
-        cond-fn (case (nth vs 5)
-                  "!=" (partial #(not= (get % cond-reg 0) cond-num))
-                  ">=" (partial #(>= (get % cond-reg 0) cond-num))
-                  "<=" (partial #(<= (get % cond-reg 0) cond-num))
-                  "==" (partial #(= (get % cond-reg 0) cond-num))
-                  ">" (partial #(> (get % cond-reg 0) cond-num))
-                  "<" (partial #(< (get % cond-reg 0) cond-num)))]
+        cond-num  (java.lang.Integer/valueOf (nth vs 6))
+        cond-reg  (symbol (nth vs 4))
+        cond-fn   (case (nth vs 5)
+                    "!=" (cond-pred-fn not= cond-reg cond-num)
+                    ">=" (cond-pred-fn >= cond-reg cond-num)
+                    "<=" (cond-pred-fn <= cond-reg cond-num)
+                    "==" (cond-pred-fn = cond-reg cond-num)
+                    ">" (cond-pred-fn > cond-reg cond-num)
+                    "<" (cond-pred-fn < cond-reg cond-num))]
     {:update-fn update-fn
      :cond-fn   cond-fn}))
 

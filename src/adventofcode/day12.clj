@@ -45,9 +45,9 @@
   [no init-map data-map]
   (->> (get data-map no ())
        (reduce
-         (fn [m d] (if-not (contains? m d)
-                     (merge m (nodes-group d m data-map))
-                     m))
+         (fn [m d] (cond-> m
+                           (not (contains? m d))
+                           (merge (nodes-group d m data-map))))
          (merge init-map (select-keys data-map [no])))))
 
 (defn contains-count

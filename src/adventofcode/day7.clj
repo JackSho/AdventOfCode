@@ -105,7 +105,7 @@
   [{:keys [no name vals]}]
   (if-not (empty? vals)
     (let [v-coll (map count-weight vals)
-          vs (map #(apply + %) v-coll)]
+          vs     (map #(apply + %) v-coll)]
       (if (= (apply max vs) (apply min vs))
         [no (apply + 0 vs)]
         (throw (ex-info "" {:ex-data v-coll}))))
@@ -114,9 +114,9 @@
 (defn right-weight
   [string]
   (let [data-map (str->map string)
-        data (->> (get-root data-map)
-                  (parse-map data-map)
-                  (first))]
+        data     (->> (get-root data-map)
+                      (parse-map data-map)
+                      (first))]
     (try
       (count-weight data)
       (catch Exception e

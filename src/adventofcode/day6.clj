@@ -27,7 +27,7 @@
 (defn reallocated-coll
   "将一个整数 number 拆分成长度为 length 的序列"
   [number length]
-  (let [mean (if (<= number length) 1 (quot number length))
+  (let [mean   (if (<= number length) 1 (quot number length))
         remain (- number (* (dec length) mean))]
     (if (nat-int? remain)
       (concat (repeat (dec length) mean) [(- remain number)])
@@ -36,7 +36,7 @@
 (defn max-index
   "coll 中数值最大的数的索引"
   [coll]
-  (core/index-of-coll #(apply max %) coll))
+  (core/index-of-coll (partial apply max) coll))
 
 (defn iterate-reallocate
   [coll]
@@ -46,12 +46,12 @@
 
 (defn real-times
   [{:keys [data data-map data-times] :as datas}]
-  (as-> (first data) cur-data
-        (if (contains? data-map cur-data)
-          data-times
-          (fn [] (real-times (-> (update datas :data rest)
-                                 (update :data-map #(assoc % cur-data data-times))
-                                 (update :data-times inc)))))))
+  (let [cur-data (first data)]
+    (if (contains? data-map cur-data)
+      data-times
+      (fn [] (real-times (-> (update datas :data rest)
+                             (update :data-map #(assoc % cur-data data-times))
+                             (update :data-times inc)))))))
 
 (defn reallocation-times
   [string]

@@ -8,11 +8,11 @@
 ;
 ;This hash function simulates tying a knot in a circle of string with 256 marks on it. Based on the input to be hashed, the function repeatedly selects a span of string, brings the ends together, and gives the span a half-twist to reverse the order of the marks within it. After doing this many times, the order of the marks is used to build the resulting hash.
 ;
-;4--5   pinch   4  5           4   1
-;/    \  5,0,1  / \/ \  twist  / \ / \
+;  4--5   pinch   4  5           4   1
+; /    \  5,0,1  / \/ \  twist  / \ / \
 ;3      0  -->  3      0  -->  3   X   0
-;\    /         \ /\ /         \ / \ /
-;2--1           2  1           2   5
+; \    /         \ /\ /         \ / \ /
+;  2--1           2  1           2   5
 ;To achieve this, begin with a list of numbers from 0 to 255, a current position which begins at 0 (the first element in the list), a skip size (which starts at 0), and a sequence of lengths (your puzzle input). Then, for each length:
 ;
 ;Reverse the order of that length of elements in the list, starting with the element at the current position.
@@ -111,7 +111,7 @@
                           (nth 64))]
       (->> (:coll sparse-hash)
            (partition 16)
-           (map #(apply bit-xor %))
+           (map (partial apply bit-xor))
            (map #(str (when (< % 16) "0")
                       (java.lang.Integer/toHexString %)))
            (apply str)))))

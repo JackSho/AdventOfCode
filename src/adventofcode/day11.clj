@@ -42,10 +42,10 @@
   [coord]
   (let [index (->> (core/convert-coll #(java.lang.Math/abs %) coord)
                    (core/index-of-coll #(apply min %)))
-        data (->> (map-indexed
-                    (fn [i d] ((if (= i index) - +) d (nth coord index)))
-                    coord)
-                  (remove zero?))]
+        data  (->> (map-indexed
+                     (fn [i d] ((if (= i index) - +) d (nth coord index)))
+                     coord)
+                   (remove zero?))]
     (if-not (empty? data)
       (->> (map #(java.lang.Math/abs %) data)
            (apply (if (pos-int? (apply * data)) max +)))

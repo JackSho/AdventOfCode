@@ -19,7 +19,7 @@
   [string]
   (->> (clojure.string/split-lines string)
        (map (partial core/string->coll #"\w+" str))
-       (map #(apply distinct? %))
+       (map (partial apply distinct?))
        (filter true?)
        (count)))
 
@@ -39,6 +39,6 @@
   [string]
   (->> (clojure.string/split-lines string)
        (map (partial core/string->coll #"\w+" #(str (sort %))))
-       (map #(apply distinct? %))
+       (map (partial apply distinct?))
        (filter true?)
        (count)))

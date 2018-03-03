@@ -68,7 +68,7 @@
 (defn find-multiple
   "在 coll 中找出能被 num 整除的数，不包含 num "
   [num coll]
-  (filter #(and (> % num) (= 0 (mod % num))) coll))
+  (filter #(and (> % num) (zero? (mod % num))) coll))
 
 (defn division
   "找出数字集合中第一个能被整除的两数之商"
