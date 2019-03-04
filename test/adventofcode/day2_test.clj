@@ -18,4 +18,4 @@
     (is (= (division [5 9 2 8]) 4))
     (is (= (division [9 4 7 3]) 3))
     (is (= (division [3 8 6 5]) 2))
-    (is (= (checksum-mulriple input) 326))))
+    (is (= (checksum-multiple input) 326))))

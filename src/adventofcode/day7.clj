@@ -53,7 +53,7 @@
   [line]
   (let [[name vals] (clojure.string/split line #"->")
         [name no] (clojure.string/split name #"\s")
-        no (java.lang.Integer/valueOf (re-find #"\d+" no))]
+        no (Integer/valueOf (re-find #"\d+" no))]
     {name {:no   no
            :name name
            :vals (->> (str vals)

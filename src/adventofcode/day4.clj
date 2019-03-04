@@ -18,7 +18,7 @@
 (defn count-valid
   [string]
   (->> (clojure.string/split-lines string)
-       (map (partial core/string->coll #"\w+" str))
+       (map (partial core/string->coll #"\w+"))
        (map (partial apply distinct?))
        (filter true?)
        (count)))
@@ -38,7 +38,7 @@
 (defn count-valid-like
   [string]
   (->> (clojure.string/split-lines string)
-       (map (partial core/string->coll #"\w+" #(str (sort %))))
+       (map (partial core/string->coll #"\w+" #(apply str (sort %))))
        (map (partial apply distinct?))
        (filter true?)
        (count)))

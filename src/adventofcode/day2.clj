@@ -24,7 +24,7 @@
   "数字矩阵字符串转换成 coll"
   [string]
   (->> (clojure.string/split-lines string)
-       (map (partial core/string->coll #"\d+" #(java.lang.Integer/valueOf %)))))
+       (map (partial core/string->numbers #"\d+"))))
 
 (defn difference-max-min
   "coll 中最大值与最小值的差"
@@ -66,21 +66,23 @@
 ;What is the sum of each row's result in your puzzle input?
 
 (defn find-multiple
-  "在 coll 中找出能被 num 整除的数，不包含 num "
+  "在 coll 中找出能被 num 整除的数，不包含 num ，并且返回倍数"
   [num coll]
-  (filter #(and (> % num) (zero? (mod % num))) coll))
+  (->> coll
+       (filter (partial < num))
+       (filter #(zero? (mod % num)))
+       (map #(quot % num))))
 
 (defn division
   "找出数字集合中第一个能被整除的两数之商"
   [num-coll]
   (->> num-coll
-       (map (fn [num] [num (find-multiple num num-coll)]))
-       (filter #(not-empty (last %)))
-       (map (fn [[num c]] [num (map #(quot % num) c)]))
-       (map #(first (last %)))
+       (map (fn [num] (concat [num] (find-multiple num num-coll))))
+       (filter next)
+       (map #(first (rest %)))
        (first)))
 
-(defn checksum-mulriple
+(defn checksum-multiple
   [string]
   (->> (matrix-str->coll string)
        (matrix-checksum division checksum-coll)))

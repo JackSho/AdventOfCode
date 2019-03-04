@@ -34,13 +34,13 @@
   [line]
   (let [vs        (clojure.string/split line #"\s")
         register  (symbol (nth vs 0))
-        delta     (java.lang.Integer/valueOf (nth vs 2))
+        delta     (Integer/valueOf (nth vs 2))
         op-fn     (fn [op data-map]
                     (update data-map register #(op (or % 0) delta)))
         update-fn (case (nth vs 1)
                     "dec" (partial op-fn -)
                     "inc" (partial op-fn +))
-        cond-num  (java.lang.Integer/valueOf (nth vs 6))
+        cond-num  (Integer/valueOf (nth vs 6))
         cond-reg  (symbol (nth vs 4))
         cond-fn   (case (nth vs 5)
                     "!=" (cond-pred-fn not= cond-reg cond-num)

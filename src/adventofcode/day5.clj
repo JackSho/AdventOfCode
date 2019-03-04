@@ -40,7 +40,7 @@
   [index coll]
   (+ index (nth coll index)))
 
-(defn breake-pred
+(defn break-pred
   [[step index coll]]
   (when (>= index (count coll)) step))
 
@@ -49,11 +49,11 @@
   (let [coll-update-fn (fn [index coll]
                          (update coll index inc))]
     (->> string
-         (core/string->coll #"-?\d+" #(java.lang.Integer/valueOf %))
+         (core/string->numbers #"-?\d+")
          (vec)
          (conj [0 0])
-         (core/iterate-coll (iterate-fn index-update coll-update-fn))
-         (some breake-pred))))
+         (iterate (iterate-fn index-update coll-update-fn))
+         (some break-pred))))
 
 
 ;--- Part Two ---
@@ -70,8 +70,8 @@
                            (update coll index inc)
                            (update coll index dec)))]
     (->> string
-         (core/string->coll #"-?\d+" #(java.lang.Integer/valueOf %))
+         (core/string->numbers #"-?\d+")
          (vec)
          (conj [0 0])
-         (core/iterate-coll (iterate-fn index-update coll-update-fn))
-         (some breake-pred))))
+         (iterate (iterate-fn index-update coll-update-fn))
+         (some break-pred))))

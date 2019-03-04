@@ -26,7 +26,7 @@
 (defn manhattan
   "坐标与原点的距离"
   [[x y]]
-  (+ (java.lang.Math/abs x) (java.lang.Math/abs y)))
+  (+ (Math/abs x) (Math/abs y)))
 
 (defn next-coord-data
   "下一个坐标数据"
@@ -38,7 +38,7 @@
     :right [[(inc x) y] (if (= x (- y)) :up :right)]))
 
 (defn iterate-fn
-  [next-data-fn]
+  [next-data-fn next-coord-data]
   (fn [{:keys [history data next-coord] :as data-map}]
     (let [[cur-coord next-direction] next-coord
           cur-data (next-data-fn data-map)]
@@ -49,13 +49,13 @@
 (defn manhattan-distance
   [number]
   (let [next-data-fn (fn [{:keys [data]}] (inc (second data)))
-        breaked-fn (fn [{:keys [data]}]
+        breaked-fn   (fn [{:keys [data]}]
                      (when (= (second data) number)
                        (manhattan (first data))))]
     (->> {:history    {[0 0] 1}
           :data       [[0 0] 1]
           :next-coord [[1 0] :up]}
-         (core/iterate-coll (iterate-fn next-data-fn))
+         (iterate (iterate-fn next-data-fn next-coord-data))
          (some breaked-fn))))
 
 
@@ -97,11 +97,11 @@
                             (around-coords)
                             (map #(get history % 0))
                             (apply + 0)))
-        breaked-fn (fn [{:keys [data]}]
+        breaked-fn   (fn [{:keys [data]}]
                      (when (> (second data) number)
                        (second data)))]
     (->> {:history    {[0 0] 1}
           :data       [[0 0] 1]
           :next-coord [[1 0] :up]}
-         (core/iterate-coll (iterate-fn next-data-fn))
+         (iterate (iterate-fn next-data-fn next-coord-data))
          (some breaked-fn))))

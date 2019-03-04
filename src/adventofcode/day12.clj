@@ -38,8 +38,8 @@
 (defn parse-line
   [line]
   (let [[no nos] (clojure.string/split line #"<->")]
-    {(java.lang.Integer/valueOf (clojure.string/trim no))
-     (core/string->coll #"\d+" #(java.lang.Integer/valueOf %) nos)}))
+    {(Integer/valueOf (clojure.string/trim no))
+     (core/string->numbers #"\d+" nos)}))
 
 (defn nodes-group
   [no init-map data-map]

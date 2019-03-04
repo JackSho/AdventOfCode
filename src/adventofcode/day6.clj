@@ -56,8 +56,8 @@
 (defn reallocation-times
   [string]
   (let [data-colls (->> string
-                        (core/string->coll #"\d+" #(java.lang.Integer/valueOf %))
-                        (core/iterate-coll iterate-reallocate))]
+                        (core/string->numbers #"\d+")
+                        (iterate iterate-reallocate))]
     (trampoline real-times {:data data-colls :data-map {} :data-times 0})))
 
 
@@ -71,8 +71,8 @@
 (defn reallocation-seen-again
   [string]
   (let [data-colls (->> string
-                        (core/string->coll #"\d+" #(java.lang.Integer/valueOf %))
-                        (core/iterate-coll iterate-reallocate))]
+                        (core/string->numbers #"\d+")
+                        (iterate iterate-reallocate))]
     (loop [{:keys [data data-map data-times] :as datas}
            {:data data-colls :data-map {} :data-times 0}]
       (let [cur-data (first data)]

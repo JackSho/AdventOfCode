@@ -62,7 +62,7 @@
 (defn multiply-second
   [n input-str]
   (->> input-str
-       (core/string->coll #"\d+" #(java.lang.Integer/valueOf %))
+       (core/string->numbers #"\d+")
        (reduce operate {:coll (range n) :pos 0 :skip-size 0})
        (:coll)
        (core/sseq 0 2)
@@ -107,11 +107,11 @@
     (let [sparse-hash (-> (map int input-str)
                           (concat [17 31 73 47 23])
                           (hash-round)
-                          (core/iterate-coll init-data)
+                          (iterate init-data)
                           (nth 64))]
       (->> (:coll sparse-hash)
            (partition 16)
            (map (partial apply bit-xor))
            (map #(str (when (< % 16) "0")
-                      (java.lang.Integer/toHexString %)))
+                      (Integer/toHexString %)))
            (apply str)))))
