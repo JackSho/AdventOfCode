@@ -330,30 +330,6 @@
                          (reduce (fn [m [layer cnt]]
                                    (assoc m layer [cnt 0 inc])) {})
                          (iterate move))
-        breaked-fn  (fn [[delay coll]]
-                      (when (->> coll
-                                 (map-indexed
-                                   (fn [i dm]
-                                     (when-let [[len pos _] (get dm i)]
-                                       (when (zero? pos)
-                                         len))))
-                                 (every? nil?))
-                        delay))]
-    (->> (map-indexed (fn [i _] [i (core/sseq i sub-seq-len ite-coll)]) ite-coll)
-         (some breaked-fn))))
-
-
-
-(defn fewest-picoseconds
-  [input-str]
-  (let [input-map   (str->map input-str)
-        max-layer   (->> (apply max-key key input-map)
-                         (first))
-        sub-seq-len (inc max-layer)
-        ite-coll    (->> input-map
-                         (reduce (fn [m [layer cnt]]
-                                   (assoc m layer [cnt 0 inc])) {})
-                         (iterate move))
         not-caught  (fn [coll]
                       (->> coll
                            (map-indexed

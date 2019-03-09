@@ -42,20 +42,20 @@
      (core/string->numbers #"\d+" nos)}))
 
 (defn nodes-group
-  [no init-map data-map]
+  [no init-set data-map]
   (->> (get data-map no ())
        (reduce
-         (fn [m d] (cond-> m
-                           (not (contains? m d))
-                           (merge (nodes-group d m data-map))))
-         (merge init-map (select-keys data-map [no])))))
+         (fn [s d] (cond-> s
+                           (not (s d))
+                           (#(apply conj % (nodes-group d s data-map)))))
+         (conj init-set no))))
 
 (defn contains-count
   [input-str no]
   (->> (clojure.string/split-lines input-str)
        (map parse-line)
        (apply merge)
-       (nodes-group no {})
+       (nodes-group no #{})
        (count)))
 
 
@@ -73,5 +73,5 @@
   (let [data-map (->> (clojure.string/split-lines input-str)
                       (map parse-line)
                       (apply merge))]
-    (->> (group-by #(nodes-group (first %) {} data-map) data-map)
+    (->> (group-by #(nodes-group (first %) #{} data-map) data-map)
          (count))))
